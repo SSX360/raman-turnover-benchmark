@@ -1,0 +1,5 @@
+outs:
+- md5: c44c6f3371c5819fa259141b1ff84e2d
+  size: 9812957
+  hash: md5
+  path: mac_synthetic_v2.npz

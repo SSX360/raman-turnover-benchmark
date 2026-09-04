@@ -1,0 +1,30 @@
+{
+  "name": "mac_synthetic_v2",
+  "seed": 3407,
+  "n_samples": 3400,
+  "split": [
+    2400,
+    400,
+    600
+  ],
+  "grid": [
+    1000.0,
+    1800.0,
+    801
+  ],
+  "wavelengths_nm": [
+    325.0,
+    514.0,
+    633.0
+  ],
+  "physics": {
+    "C_stage1_514nm_A": 44.0,
+    "C_stage2_514nm_A-2": 0.0055,
+    "wavelength_scaling": "(wl/514)^2 both stages; turnover La=20A invariant",
+    "stress_g_shift_cm-1_per_GPa": 5.0,
+    "sigma_max_GPa": 8.0,
+    "pl_slope": "linear in h_frac (Casiraghi PRB 72 085401)",
+    "d_suppression_with_h": "1 - 0.6*h"
+  },
+  "provenance": "SYNTHETIC v2 \u2014 v1 + wavelength-scaled C, stress G-shift, a-C:H PL/hydrogen (report.pdf next-steps item 2)"
+}
