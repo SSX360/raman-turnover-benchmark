@@ -1,0 +1,34 @@
+{
+  "corpus": "mac_synthetic_v2",
+  "results": {
+    "gbt_v2": {
+      "T1_stage_macro_f1": 0.9918,
+      "T2_la_mean_relative_error": 0.0327,
+      "T2_deg_mean_relative_error": 0.0283,
+      "n": 600,
+      "n_degenerate": 100,
+      "T3_sp3_mae": 0.0147,
+      "T5_la_mae_clean": 2.29,
+      "T5_la_mae_corrupted": 5.136,
+      "n_corrupted": 45
+    },
+    "cnn_v2": {
+      "T1_stage_macro_f1": 0.9921,
+      "T2_la_mean_relative_error": 0.0749,
+      "T2_deg_mean_relative_error": 0.0755,
+      "n": 600,
+      "n_degenerate": 100,
+      "T3_sp3_mae": 0.0258,
+      "T5_la_mae_clean": 5.233,
+      "T5_la_mae_corrupted": 16.893,
+      "n_corrupted": 45,
+      "val_loss": 0.038
+    },
+    "cross_model": {
+      "stage_agreement": 0.9917,
+      "la_pearson": 0.991,
+      "la_mae_between_models": 6.384
+    }
+  },
+  "t1_macro_f1_gbt": 0.9918
+}

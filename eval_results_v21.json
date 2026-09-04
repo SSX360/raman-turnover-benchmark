@@ -1,0 +1,45 @@
+{
+  "corpus": "mac_synthetic_v2",
+  "results": {
+    "gbt_v2": {
+      "T1_stage_macro_f1": 0.9918,
+      "T2_la_mean_relative_error": 0.0327,
+      "T2_deg_mean_relative_error": 0.0283,
+      "n": 600,
+      "n_degenerate": 100,
+      "T3_sp3_mae": 0.0147,
+      "T5_la_mae_clean": 2.29,
+      "T5_la_mae_corrupted": 5.136,
+      "n_corrupted": 45
+    },
+    "cnn_v2": {
+      "T1_stage_macro_f1": 0.9767,
+      "T2_la_mean_relative_error": 0.078,
+      "T2_deg_mean_relative_error": 0.0712,
+      "n": 600,
+      "n_degenerate": 100,
+      "T3_sp3_mae": 0.0278,
+      "T5_la_mae_clean": 5.699,
+      "T5_la_mae_corrupted": 14.483,
+      "n_corrupted": 45,
+      "val_loss": 0.0489
+    },
+    "cross_model": {
+      "stage_agreement": 0.9817,
+      "la_pearson": 0.9915,
+      "la_mae_between_models": 6.832
+    },
+    "ensemble_v2": {
+      "T1_stage_macro_f1": 0.9892,
+      "T2_la_mean_relative_error": 0.0436,
+      "T2_deg_mean_relative_error": 0.0368,
+      "n": 600,
+      "n_degenerate": 100,
+      "T3_sp3_mae": 0.0186,
+      "T5_la_mae_clean": 3.148,
+      "T5_la_mae_corrupted": 7.788,
+      "n_corrupted": 45
+    }
+  },
+  "t1_macro_f1_gbt": 0.9918
+}

@@ -1,0 +1,88 @@
+{
+  "corpus": "v2",
+  "claim_status": "MODELLED - synthetic forward model",
+  "coverage": {
+    "corpus": "v2",
+    "ood_fraction": 0.015,
+    "rel_err_in_dist": 0.0299,
+    "rel_err_ood": 0.0969,
+    "corrupted_flagged_ood": 0.2,
+    "clean_flagged_ood": 0.0,
+    "threshold_dist": 9.2232,
+    "preprocess": {
+      "spikes_removed": 205147,
+      "saturated_flagged": 54
+    },
+    "verdict": "OOD carries higher error; use as a refusal gate."
+  },
+  "linear": {
+    "peak_only": {
+      "sp3_r2": 0.732,
+      "stage_macro_f1": 0.807,
+      "shuffle_sp3": 0.004,
+      "shuffle_stage": 0.279
+    },
+    "binned": {
+      "sp3_r2": 0.987,
+      "stage_macro_f1": 0.995,
+      "shuffle_sp3": 0.008,
+      "shuffle_stage": 0.321
+    },
+    "process": {
+      "sp3_r2": 0.781,
+      "stage_macro_f1": 0.846,
+      "shuffle_sp3": 0.002,
+      "shuffle_stage": 0.298
+    },
+    "full": {
+      "sp3_r2": 0.988,
+      "stage_macro_f1": 0.994,
+      "shuffle_sp3": 0.012,
+      "shuffle_stage": 0.328
+    }
+  },
+  "attribution": {
+    "query": "test-00065",
+    "true_la": 14.213,
+    "stage": 2,
+    "wavelength_nm": 325.0,
+    "corruption": "none",
+    "pred_with_all": 14.02,
+    "pred_without_top8": 14.006,
+    "attribution_shift": 0.014,
+    "supporting_rows": [
+      {
+        "id": "train-01472",
+        "la": 13.604
+      },
+      {
+        "id": "train-01917",
+        "la": 14.03
+      },
+      {
+        "id": "train-02656",
+        "la": 13.058
+      },
+      {
+        "id": "train-02014",
+        "la": 13.633
+      },
+      {
+        "id": "train-01615",
+        "la": 14.658
+      },
+      {
+        "id": "train-00220",
+        "la": 14.422
+      },
+      {
+        "id": "train-01001",
+        "la": 12.905
+      },
+      {
+        "id": "train-00003",
+        "la": 13.379
+      }
+    ]
+  }
+}

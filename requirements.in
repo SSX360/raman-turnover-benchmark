@@ -1,0 +1,7 @@
+# packages the code imports; the pinned versions of the environment that produced the
+# evaluation records are in requirements.txt
+numpy
+scipy
+scikit-learn
+torch
+cryptography
