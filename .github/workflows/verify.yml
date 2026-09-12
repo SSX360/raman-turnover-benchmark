@@ -1,0 +1,62 @@
+name: verify
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  schedule:
+    - cron: "17 6 * * 1"   # weekly: the record must keep reproducing on a fresh runner
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  re-derive:
+    name: re-derive (${{ matrix.env }}, py${{ matrix.python }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - env: pinned      # the environment of the published record, minus PyTorch
+            python: "3.12"
+            requirements: requirements-ci.txt
+          - env: latest      # current NumPy / scikit-learn releases
+            python: "3.12"
+            requirements: requirements.in
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          if [ "${{ matrix.env }}" = "pinned" ]; then
+            pip install -r requirements-ci.txt
+          else
+            pip install numpy scipy scikit-learn cryptography pytest
+          fi
+          python -c "import numpy, scipy, sklearn; print('numpy', numpy.__version__, 'scipy', scipy.__version__, 'scikit-learn', sklearn.__version__)"
+      - name: Regenerate the corpus
+        run: python src/mac/generate_v2.py --out data/mac
+      - name: Table 2, physics baseline row
+        run: python src/eval_baseline_v2.py
+      - name: Tests (composition, determinism, baseline, tree-model reproducibility)
+        run: python -m pytest tests -q -rA
+      - name: Release gates
+        run: python src/verify.py
+      - name: Record what this runner produced
+        if: always()
+        run: |
+          sha256sum data/mac/mac_synthetic_v2.npz data/mac/metadata_v2.json eval_results_baseline_v2.json > rederivation-${{ matrix.env }}.sha256
+          cat rederivation-${{ matrix.env }}.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rederivation-${{ matrix.env }}-py${{ matrix.python }}
+          path: |
+            eval_results_baseline_v2.json
+            rederivation-${{ matrix.env }}.sha256
