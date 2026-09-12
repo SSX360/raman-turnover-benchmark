@@ -1,0 +1,7 @@
+# CPU-only subset of requirements.txt for the continuous re-derivation (no PyTorch):
+# the corpus generator, the physics baseline, the default tree model and verify.py.
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.1
+cryptography==50.0.0
+pytest==8.3.3

@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "If you use this code or the synthetic corpus, cite the preprint below and this repository by version."
+type: software
+title: "raman-turnover-benchmark: a synthetic benchmark for the Raman crystallite-size turnover in nanocrystalline graphite"
+version: "2.0"
+date-released: "2026-09-05"
+license: Apache-2.0
+repository-code: "https://github.com/SSX360/raman-turnover-benchmark"
+url: "https://ryanjamesyork.com/raman-turnover"
+authors:
+  - family-names: York
+    given-names: Ryan James
+    orcid: "https://orcid.org/0009-0007-5979-7949"
+    affiliation: "SSX360 Corp., Honolulu, Hawaiʻi"
+keywords:
+  - Raman spectroscopy
+  - nanocrystalline graphite
+  - amorphous carbon
+  - Tuinstra-Koenig
+  - synthetic benchmark
+  - inverse problem
+  - reproducibility
+  - provenance
+preferred-citation:
+  type: unpublished
+  title: "Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark"
+  authors:
+    - family-names: York
+      given-names: Ryan James
+      orcid: "https://orcid.org/0009-0007-5979-7949"
+  year: 2026
+  month: 9
+  notes: "Preprint v2.0, 2026-09-05. PDF SHA-256 1a15d3be94756c91e47bd18e8c9be7c30ab2d7a0598b52a7b4515d33ef43ed02"
+  url: "https://ryanjamesyork.com/files/york-2026-raman-turnover-v2.0.pdf"

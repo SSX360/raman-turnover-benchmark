@@ -1,0 +1,10 @@
+# requirements.txt - frozen from the verification environment (Apple M-series, macOS, Python 3.12), 2026-09-05
+# Note: the evaluation records were produced on the author's own offline servers; this file pins the
+# environment used for the independent re-derivation recorded in the public record.
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.1
+torch==2.9.0
+cryptography==50.0.0
+matplotlib==3.10.6
+pandas==2.2.2

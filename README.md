@@ -1,5 +1,7 @@
 # raman-turnover-benchmark
 
+[![verify](https://github.com/SSX360/raman-turnover-benchmark/actions/workflows/verify.yml/badge.svg)](https://github.com/SSX360/raman-turnover-benchmark/actions/workflows/verify.yml)
+
 Code and evaluation records for
 
 > R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark* (manuscript, 2026; the citation will be updated when it is published).
@@ -35,6 +37,7 @@ The corpus itself (`data/mac/mac_synthetic_v2.npz`, `metadata_v2.json`), the per
 
 ```
 pip install -r requirements.txt          # pinned versions of the environment that produced the records (requirements.in lists the packages)
+pip install -r requirements-ci.txt       # or: the CPU-only subset (no PyTorch) that the tests and verify.py need
 python src/mac/generate_v2.py --out data/mac        # regenerates the corpus and metadata_v2.json
 python src/eval_baseline_v2.py                      # Table 2, physics baseline row (deterministic, seconds)
 python src/train_eval_v2.py --no-cnn                # Table 2, untuned tree model (seconds); drop --no-cnn for the network (GPU)
@@ -42,16 +45,36 @@ python src/train_eval_v3.py                         # Table 2, tuned tree model,
 python src/probe.py all                             # Fig. 3, probe_readings.json
 python src/verify.py                                # release gates
 python src/provenance.py verify                     # ledger (place the deposited ledger.jsonl in ledger/)
+python -m pytest tests -q                           # composition, determinism, Table 2 baseline row, tree-model reproducibility, verify.py
 ```
 
 `verify.py` regenerates the corpus and compares its digest, retrains the default tree model from the seed and compares T1, T2 and T3 with the ledgered record to 1e-6, checks cross-model agreement ≥ 0.95, checks that revision 3 improves on revision 2.1 and that the refusal gate lowers the corrupted-row error, and checks the probe readings. On the machine that produced the records every check passes; on an independent machine with a different NumPy build the regenerated `metadata_v2.json` differs in the last floating-point digit of transcendental evaluations in about 3 % of rows, with identical splits, labels, corruption assignments and counts, and the reproducibility check matches the ledgered T1, T2 and T3 to every printed digit.
+
+### Independent re-derivations
+
+| Date | Platform | Environment | Result |
+|---|---|---|---|
+| 2026-09-05 | Apple M-series, macOS | Python 3.12, `requirements.txt` (numpy 1.26.4, scikit-learn 1.5.1) | `VERIFY: PASS`; baseline row and T1/T2/T3 to every printed digit ([record](https://ryanjamesyork.com/raman-turnover)) |
+| 2026-09-12 | Linux x86-64 (cloud sandbox) | Python 3.11, numpy 2.4.4, scipy 1.17.1, scikit-learn 1.8.0 | `VERIFY: PASS` in 18 s; baseline row T1 0.2106 / T2 9.0076 / T4 2.378 / T5 89.393; T1/T2/T3 retrain delta 0.00e+00 |
+| continuous | GitHub Actions `ubuntu-latest` | pinned (`requirements-ci.txt`) and latest releases, weekly | [![verify](https://github.com/SSX360/raman-turnover-benchmark/actions/workflows/verify.yml/badge.svg)](https://github.com/SSX360/raman-turnover-benchmark/actions/workflows/verify.yml) |
+
+The corpus file digest is build-specific: on the pinned macOS environment `mac_synthetic_v2.npz` has SHA-256 `604e9bf4…` (the published record); on the Linux run above it is `13054a9f…`, with identical composition, splits, labels, corruption assignments and every reported metric. Determinism is therefore asserted as byte-identity between two generations on the same machine, and the metrics are asserted at printed precision; the published digest identifies the deposited file, not the only correct output of the generator.
 
 ## Notes a referee should know
 
 * `train_eval_v3.py` selects the tree model's hyperparameters from 20 random draws; in the run behind `eval_results_v3.json` each candidate was fitted on the training and validation rows together and scored on the validation rows, so the selection score is optimistic. The selected setting was refitted on the training rows alone before test scoring, so the reported test numbers are from a model that never saw the test split. The paper states this.
 * The despiker in `preprocess.py` replaces every point whose residual against a seven-point moving median exceeds six robust standard deviations. It replaced 205,147 points across the corpus, most of them ordinary noise excursions in the brighter parts of clean traces; the count is of points replaced, not of spike events.
 * The stage labels for task T1 are assigned from L_a at 43 Å and 6 Å; the forward model switches branch at 20 Å.
+* `verify.py` compares the corpus digest before and after regeneration on the same machine. Across NumPy builds the digest differs while the metrics do not (see Independent re-derivations); a digest mismatch against the published value on a different build is expected and is not a failed gate.
 * The seven release gates of the paper's Table 3 include two gates on the acquisition journal (journal validity, hypothesis determinism). Those are exercised on a simulated acquisition campaign that belongs to a separate programme on the same platform and is not part of this repository or the deposit; `verify.py` here runs the five gates that apply to the deposited artifacts.
+
+## Cite
+
+`CITATION.cff` carries the machine-readable form. In text:
+
+> R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark*, preprint v2.0, 2026-09-05. Code: github.com/SSX360/raman-turnover-benchmark, release v2.0. Data record: https://ryanjamesyork.com/raman-turnover
+
+Digital object identifiers for the code release and the data record are added here when minted.
 
 ## Licence
 
