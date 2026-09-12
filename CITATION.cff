@@ -5,6 +5,17 @@ title: "raman-turnover-benchmark: a synthetic benchmark for the Raman crystallit
 version: "2.0"
 date-released: "2026-09-05"
 license: Apache-2.0
+doi: 10.5281/zenodo.22729662
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22729662
+    description: "Zenodo archive of release v2.0 (this version)"
+  - type: doi
+    value: 10.5281/zenodo.22729661
+    description: "Zenodo concept DOI for all versions of the code"
+  - type: doi
+    value: 10.5281/zenodo.22729728
+    description: "Zenodo data record v2.0 (corpus, evaluation records, environment, preprint PDF and source; CC BY 4.0)"
 repository-code: "https://github.com/SSX360/raman-turnover-benchmark"
 url: "https://ryanjamesyork.com/raman-turnover"
 authors:
