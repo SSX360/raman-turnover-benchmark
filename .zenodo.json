@@ -1,0 +1,48 @@
+{
+  "title": "raman-turnover-benchmark: a synthetic benchmark for inverting the Raman crystallite-size turnover in nanocrystalline graphite (code and evaluation records)",
+  "upload_type": "software",
+  "version": "2.0",
+  "license": "Apache-2.0",
+  "access_right": "open",
+  "language": "eng",
+  "creators": [
+    {
+      "name": "York, Ryan James",
+      "affiliation": "SSX360 Corp., Honolulu, Hawaiʻi",
+      "orcid": "0009-0007-5979-7949"
+    }
+  ],
+  "description": "<p>Code and evaluation records for <em>Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark</em> (R. J. York, preprint v2.0, 2026-09-05). The disorder ratio I(D)/I(G) of carbon Raman spectra is not invertible: it rises as 1/L<sub>a</sub> to a turnover near 20 &Aring; and falls as L<sub>a</sub><sup>2</sup> beyond it. The repository holds the generator of a deterministic synthetic corpus built on that forward model (3,400 spectra at 325, 514 and 633 nm with planted acquisition failures; seed 3407), the five benchmark tasks, the physics baseline and learned inversion pipelines scored on it, the probes, the release-gate verifier, and an append-only Ed25519 ledger tool. All results are modelled: they are outputs of a declared forward model and make no claim about physical films.</p><p>Release v2.0 pins the code at the state re-derived on three independent environments (macOS pinned, Linux sandbox, GitHub Actions pinned) with the release gates reporting PASS, adds a test suite and a continuous re-derivation workflow, and documents the scikit-learn-version drift of the learned model. The corpus, per-row metadata and evaluation records are deposited separately (data record, CC BY 4.0); the preprint PDF is attached to this release.</p>",
+  "keywords": [
+    "Raman spectroscopy",
+    "nanocrystalline graphite",
+    "amorphous carbon",
+    "Tuinstra-Koenig",
+    "crystallite size",
+    "inverse problem",
+    "synthetic benchmark",
+    "reproducibility",
+    "release gates",
+    "provenance ledger",
+    "2D materials",
+    "materials metrology"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://ryanjamesyork.com/files/york-2026-raman-turnover-v2.0.pdf",
+      "relation": "isSupplementTo",
+      "resource_type": "publication-preprint"
+    },
+    {
+      "identifier": "https://ryanjamesyork.com/raman-turnover",
+      "relation": "references",
+      "resource_type": "dataset"
+    },
+    {
+      "identifier": "https://github.com/SSX360/raman-turnover-benchmark",
+      "relation": "isIdenticalTo",
+      "resource_type": "software"
+    }
+  ],
+  "notes": "Preprint PDF SHA-256 1a15d3be94756c91e47bd18e8c9be7c30ab2d7a0598b52a7b4515d33ef43ed02 is the digest printed on the author's Publications page; corpus digest 604e9bf48a5f2d4b81782b4efa7696fa32010cfd069e6a6db8521b118bd37120 identifies the deposited file and is build-specific (see README, Independent re-derivations)."
+}
