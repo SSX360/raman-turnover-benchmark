@@ -78,7 +78,7 @@ The corpus file digest is build-specific: on the pinned macOS environment `mac_s
 
 > R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark*, preprint v2.0, 2026-09-05. Code: github.com/SSX360/raman-turnover-benchmark, release v2.0, doi:10.5281/zenodo.22729662. Data record: https://ryanjamesyork.com/raman-turnover, doi:10.5281/zenodo.22729728
 
-The code DOI identifies release v2.0; the concept DOI 10.5281/zenodo.22729661 resolves to the latest release. The data-record DOI identifies the v2.0 deposit; its concept DOI is 10.5281/zenodo.22729727. Both were reserved on Zenodo on 2026-09-12 and resolve once the records are published. Later releases of this repository are archived on Zenodo automatically.
+The code DOI identifies release v2.0; the concept DOI 10.5281/zenodo.22729661 resolves to the latest release. The data-record DOI identifies the v2.0 deposit; its concept DOI is 10.5281/zenodo.22729727. Both records were published on Zenodo on 2026-09-12. Later releases of this repository are archived on Zenodo automatically.
 
 ## Licence
 
