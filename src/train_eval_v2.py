@@ -1,6 +1,6 @@
 """v2 train + eval: v2 corpus (wavelength-scaled C, stress G-shift, a-C:H PL),
 GBT + 1D-CNN (GPU), five-task harness, cross-model comparison.
-Writes eval_results_v2.json.
+Writes outputs/eval_results_v21.json by default, preserving the release record.
 """
 
 import argparse
@@ -17,7 +17,7 @@ from mac.generate_v2 import generate
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "mac"
-OUT = ROOT / "eval_results_v21.json"
+OUT = ROOT / "outputs" / "eval_results_v21.json"
 
 
 def load_v2():
@@ -32,6 +32,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--no-cnn", action="store_true")
+    ap.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     args = ap.parse_args()
 
     z, meta = load_v2()
@@ -53,7 +54,9 @@ def main():
     if not args.no_cnn and __import__("importlib").util.find_spec("torch"):
         from mac import nn
 
-        device = "cuda"
+        device = args.device
+        if device == "auto":
+            device = "cuda" if nn.torch.cuda.is_available() else "cpu"
         net, val_loss = nn.train_net(
             grid, X, wl, la, sp3, stage, tr, va, meta, device=device
         )
@@ -88,6 +91,7 @@ def main():
         "results": results,
         "t1_macro_f1_gbt": results["gbt_v2"]["T1_stage_macro_f1"],
     }
+    pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(args.out).write_text(json.dumps(payload, indent=2))
     print("wrote", args.out)
 

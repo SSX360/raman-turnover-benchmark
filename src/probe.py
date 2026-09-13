@@ -1,7 +1,7 @@
 """Model interrogation: coverage (OOD refusal gate), linear probes, attribution.
 
 Probes the finalized pipeline (v2 corpus + preprocessing) by default.
-`python probe.py all` runs the full device probe and writes probe_readings.json.
+`python probe.py all` writes outputs/probe_readings.json, preserving the release record.
 """
 
 import argparse
@@ -218,7 +218,8 @@ def cmd_all(args):
         "linear": cmd_linear(args),
         "attribution": cmd_attribute(args),
     }
-    out = ROOT / "probe_readings.json"
+    out = pathlib.Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(readings, indent=2))
     print("wrote", out)
     return readings
@@ -231,6 +232,8 @@ def main():
         p = sub.add_parser(name)
         p.add_argument("--corpus", default="v2", choices=["v1", "v2"])
         p.add_argument("--index", type=int, default=12)
+        if name == "all":
+            p.add_argument("--out", default=str(ROOT / "outputs" / "probe_readings.json"))
     a = sub.add_parser("attribute")
     a.add_argument("--corpus", default="v2", choices=["v1", "v2"])
     a.add_argument("--index", type=int, default=12)

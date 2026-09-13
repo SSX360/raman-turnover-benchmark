@@ -63,8 +63,8 @@ def canonical(entry):
 
 def cmd_keygen(_):
     LEDGER_DIR.mkdir(exist_ok=True)
-    if KEY.exists():
-        sys.exit("key already exists: %s" % KEY)
+    if KEY.exists() or PUB.exists():
+        sys.exit("key material already exists; refusing to overwrite the signing identity")
     priv = Ed25519PrivateKey.generate()
     KEY.write_bytes(
         priv.private_bytes(
@@ -172,10 +172,14 @@ def check_entry(e, pub, prev_expected):
 
 
 def cmd_verify(_):
+    if not LEDGER.exists():
+        sys.exit("no ledger; place the deposited ledger.jsonl in ledger/ before verifying")
     if not PUB.exists():
-        sys.exit("no public key; run keygen")
+        sys.exit("no public key; obtain the public key for the deposited ledger")
     pub = load_public()
     entries = read_entries()
+    if not entries:
+        sys.exit("empty ledger; no provenance evidence to verify")
     failed = 0
     prev = "GENESIS"
     for e in entries:

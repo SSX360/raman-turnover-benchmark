@@ -4,16 +4,16 @@ Paper subset of the platform verifier: the checks that run on the artifacts depo
 with the paper. Checks that belong to other programmes on the same platform are not
 included here.
 
-verify passes only if:
-  1. regenerating the v2 corpus is byte-identical (determinism)
-  2. T1 macro-F1 reproduces within 1e-6 of eval_results_v2.json (reproducibility)
-  3. GBT/CNN stage agreement >= 0.95 (cross-model, when CNN present)
+All five gates are required. Determinism and tree-model reproducibility are
+recomputed; cross-model, optimization and probe gates inspect deposited records.
+Missing, malformed or non-finite evidence fails verification.
 """
 
 import hashlib
 import json
 import pathlib
 import sys
+import tempfile
 
 import numpy as np
 
@@ -21,8 +21,24 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "mac"
-_cands = [ROOT / "eval_results_v21.json", ROOT / "eval_results_v2.json"]
-EVAL = next((p for p in _cands if p.exists()), ROOT / "eval_results_v2.json")
+EVAL = ROOT / "eval_results_v21.json"
+
+
+def read_record(path):
+    record = json.loads(path.read_text(encoding="utf-8"))
+
+    def validate(value):
+        if isinstance(value, dict):
+            for item in value.values():
+                validate(item)
+        elif isinstance(value, list):
+            for item in value:
+                validate(item)
+        elif isinstance(value, float) and not np.isfinite(value):
+            raise ValueError("non-finite value in %s" % path.name)
+
+    validate(record)
+    return record
 
 
 def sha256(path):
@@ -36,14 +52,16 @@ def sha256(path):
 def check_determinism():
     from mac.generate_v2 import generate
 
-    before = sha256(DATA / "mac_synthetic_v2.npz")
-    generate(str(DATA))
-    after = sha256(DATA / "mac_synthetic_v2.npz")
-    ok = before == after
-    print(
-        "[%s] determinism: sha256 %s -> %s"
-        % ("PASS" if ok else "FAIL", before[:12], after[:12])
-    )
+    # Never overwrite a downloaded deposit or compare it with another build.
+    with tempfile.TemporaryDirectory() as tmp:
+        a, b = pathlib.Path(tmp) / "a", pathlib.Path(tmp) / "b"
+        generate(str(a))
+        generate(str(b))
+        ok = True
+        for name in ("mac_synthetic_v2.npz", "metadata_v2.json", "manifest_v2.json"):
+            same = sha256(a / name) == sha256(b / name)
+            ok &= same
+            print("[%s] determinism: %s" % ("PASS" if same else "FAIL", name))
     return ok
 
 
@@ -51,7 +69,7 @@ def check_reproducibility():
     import mac.harness as harness
     import mac.models as models
 
-    ref = json.loads(EVAL.read_text())["results"]["gbt_v2"]
+    ref = read_record(EVAL)["results"]["gbt_v2"]
     z = np.load(DATA / "mac_synthetic_v2.npz", allow_pickle=True)
     meta = json.loads((DATA / "metadata_v2.json").read_text())
     grid, X = z["grid"], z["spectra"]
@@ -65,7 +83,7 @@ def check_reproducibility():
     ok = True
     for k in ("T1_stage_macro_f1", "T2_la_mean_relative_error", "T3_sp3_mae"):
         d = abs(r[k] - ref[k])
-        if d > 1e-6:
+        if not np.isfinite(d) or d > 1e-6:
             ok = False
         print("    %s: ref=%s run=%s delta=%.2e" % (k, ref[k], r[k], d))
     print("[%s] reproducibility" % ("PASS" if ok else "FAIL"))
@@ -74,14 +92,14 @@ def check_reproducibility():
 
 def check_cross_model():
     if not EVAL.exists():
-        print("[SKIP] cross-model (no eval_results_v2.json)")
-        return True
-    res = json.loads(EVAL.read_text())["results"]
+        print("[FAIL] cross-model (missing eval_results_v21.json)")
+        return False
+    res = read_record(EVAL)["results"]
     if "cross_model" not in res:
-        print("[SKIP] cross-model (CNN not trained)")
-        return True
+        print("[FAIL] cross-model (missing CNN comparison)")
+        return False
     agree = res["cross_model"]["stage_agreement"]
-    ok = agree >= 0.95
+    ok = 0.95 <= agree <= 1.0
     print(
         "[%s] cross-model stage agreement %.4f (>= 0.95)"
         % ("PASS" if ok else "FAIL", agree)
@@ -93,10 +111,13 @@ def check_v3_optimization():
     v3p = ROOT / "eval_results_v3.json"
     v21p = ROOT / "eval_results_v21.json"
     if not v3p.exists() or not v21p.exists():
-        print("[SKIP] v3 optimization (missing eval files)")
-        return True
-    v3 = json.loads(v3p.read_text())["results"]
-    v21 = json.loads(v21p.read_text())["results"]
+        print("[FAIL] v3 optimization (missing eval files)")
+        return False
+    v3 = read_record(v3p)["results"]
+    v21 = read_record(v21p)["results"]
+    if "ensemble_v3" not in v3:
+        print("[FAIL] v3 optimization (missing ensemble)")
+        return False
     ok = True
     g = (
         v3["gbt_v3"]["T2_la_mean_relative_error"]
@@ -127,6 +148,9 @@ def check_v3_optimization():
         )
         gated = v3["ensemble_v3"].get("T5_la_mae_corrupted_gated")
         corr = v3["ensemble_v3"].get("T5_la_mae_corrupted")
+        if gated is None or corr is None:
+            print("[FAIL] refusal gate (missing corrupted-row metrics)")
+            return False
         if gated is not None and corr is not None:
             r = gated <= corr
             ok &= r
@@ -140,9 +164,9 @@ def check_v3_optimization():
 def check_probe_readings():
     p = ROOT / "probe_readings.json"
     if not p.exists():
-        print("[SKIP] probe readings (run: python probe.py all)")
-        return True
-    r = json.loads(p.read_text())
+        print("[FAIL] probe readings (missing deposited probe_readings.json)")
+        return False
+    r = read_record(p)
     ok = True
     cov = r["coverage"]
     sep = cov["rel_err_ood"] > cov["rel_err_in_dist"]
@@ -157,7 +181,8 @@ def check_probe_readings():
             cov["clean_flagged_ood"],
         )
     )
-    shuf_ok = all(
+    expected = {"peak_only", "binned", "process", "full"}
+    shuf_ok = expected <= r["linear"].keys() and all(
         abs(v["shuffle_sp3"]) < 0.1 and abs(v["shuffle_stage"]) < 0.35
         for v in r["linear"].values()
     )
@@ -177,11 +202,13 @@ def check_probe_readings():
 
 def main():
     ok = True
-    ok &= check_determinism()
-    ok &= check_reproducibility()
-    ok &= check_cross_model()
-    ok &= check_v3_optimization()
-    ok &= check_probe_readings()
+    for check in (check_determinism, check_reproducibility, check_cross_model,
+                  check_v3_optimization, check_probe_readings):
+        try:
+            ok &= check()
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            print("[FAIL] %s: %s" % (check.__name__, exc))
+            ok = False
     print()
     print("VERIFY:", "PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)

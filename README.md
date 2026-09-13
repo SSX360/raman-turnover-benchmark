@@ -6,7 +6,7 @@ Code and evaluation records for
 
 > R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark* (manuscript, 2026; the citation will be updated when it is published).
 
-The disorder ratio I(D)/I(G) of carbon Raman spectra is not invertible: it rises as 1/L_a to a turnover at 20 Å and falls as L_a² beyond it, so one ratio maps to two crystallite sizes. This repository holds the generator of a deterministic synthetic corpus built on that forward model (3,400 spectra at 325, 514 and 633 nm with planted acquisition failures), the five benchmark tasks, the inversion pipelines scored on it, the probes, and the verification script that re-runs the release gates. Every number in the paper is either the output of these scripts or is ledgered in the deposited record.
+The disorder ratio I(D)/I(G) of carbon Raman spectra is not invertible: it rises as 1/L_a to a turnover at 20 Å and falls as L_a² beyond it, so one ratio maps to two crystallite sizes. This repository holds the generator of a deterministic synthetic corpus built on that forward model (3,400 spectra at 325, 514 and 633 nm with planted acquisition failures), the five benchmark tasks, the inversion pipelines scored on it, the probes, and the verification script that re-runs the release gates. The scripts and deposited records support the benchmark results; the verification scope and exclusions are listed below.
 
 All results are **modelled**: they are outputs of a declared forward model and make no claim about physical films.
 
@@ -36,19 +36,29 @@ The corpus itself (`data/mac/mac_synthetic_v2.npz`, `metadata_v2.json`), the per
 ## Reproduce
 
 ```
-pip install -r requirements.txt          # pinned versions of the environment that produced the records (requirements.in lists the packages)
-pip install -r requirements-ci.txt       # or: the CPU-only subset (no PyTorch) that the tests and verify.py need
+python -m pip install -r requirements-ci.txt       # pinned CPU verification environment
 python src/mac/generate_v2.py --out data/mac        # regenerates the corpus and metadata_v2.json
 python src/eval_baseline_v2.py                      # Table 2, physics baseline row (deterministic, seconds)
-python src/train_eval_v2.py --no-cnn                # Table 2, untuned tree model (seconds); drop --no-cnn for the network (GPU)
-python src/train_eval_v3.py                         # Table 2, tuned tree model, network and ensemble (GPU, ~minutes)
-python src/probe.py all                             # Fig. 3, probe_readings.json
 python src/verify.py                                # release gates
-python src/provenance.py verify                     # ledger (place the deposited ledger.jsonl in ledger/)
 python -m pytest tests -q                           # composition, determinism, Table 2 baseline row, tree-model reproducibility, verify.py
 ```
 
-`verify.py` regenerates the corpus and compares its digest, retrains the default tree model from the seed and compares T1, T2 and T3 with the ledgered record to 1e-6, checks cross-model agreement ≥ 0.95, checks that revision 3 improves on revision 2.1 and that the refusal gate lowers the corrupted-row error, and checks the probe readings. On the machine that produced the records every check passes; on an independent machine with a different NumPy build the regenerated `metadata_v2.json` differs in the last floating-point digit of transcendental evaluations in about 3 % of rows, with identical splits, labels, corruption assignments and counts, and the reproducibility check matches the ledgered T1, T2 and T3 to every printed digit.
+`verify.py` requires all five artifact gates. It generates the corpus twice in temporary directories and compares the corpus, metadata and manifest bytes without overwriting your local data. It retrains the default tree model on the local corpus and compares the **rounded** T1/T2/T3 metrics with the committed revision 2.1 record to 1e-6. This tolerance applies to four-decimal reported values, not unrounded prediction accuracy. Cross-model agreement, revision 3 optimization/refusal and probe checks inspect the committed JSON records; they do not retrain the CNN or rerun the probes. Missing or malformed evidence fails verification.
+
+To regenerate additional results, run the following. Fresh outputs go into `outputs/`; the committed JSON files remain the reference evidence. `--out` can select another destination.
+
+```sh
+python src/train_eval_v2.py --no-cnn
+python src/probe.py all
+# Optional full training (install PyTorch and the other pinned runtime packages):
+python -m pip install -r requirements.txt
+python src/train_eval_v2.py
+python src/train_eval_v3.py
+```
+
+Full training selects CUDA when available and otherwise CPU (`--device cpu` or `--device cuda` overrides this); CPU CNN training can be slow. The full environment file was frozen during the independent macOS re-derivation, not on the original offline training servers. GPU retraining is not part of the CPU verification gate.
+
+For deposited provenance, obtain `ledger.jsonl` and **all artifacts it names** from the data record, preserving their paths, then run `python src/provenance.py verify`. Use deposited bytes, since regenerated files can differ across builds. Missing or empty ledgers, absent artifacts, modified bytes, broken chains and invalid signatures fail. The public key shipped here belongs to the deposited ledger; key generation refuses to overwrite it. This ledger check is separate from `verify.py` and is not exercised against the deposit by CI.
 
 ### Independent re-derivations
 
@@ -68,9 +78,14 @@ The corpus file digest is build-specific: on the pinned macOS environment `mac_s
 
 * `train_eval_v3.py` selects the tree model's hyperparameters from 20 random draws; in the run behind `eval_results_v3.json` each candidate was fitted on the training and validation rows together and scored on the validation rows, so the selection score is optimistic. The selected setting was refitted on the training rows alone before test scoring, so the reported test numbers are from a model that never saw the test split. The paper states this.
 * The despiker in `preprocess.py` replaces every point whose residual against a seven-point moving median exceeds six robust standard deviations. It replaced 205,147 points across the corpus, most of them ordinary noise excursions in the brighter parts of clean traces; the count is of points replaced, not of spike events.
+* The released tree and CNN feature builders standardize process metadata within each requested batch. Predictions therefore depend on batch composition; a single-row query centers its process features to zero. These are batch benchmark results, not validated individual-sample inference. The attribution probe uses this same behavior. A future inference pipeline should retain training-set scaling and publish a separately evaluated result record.
+* Linear probe scores and shuffled controls are fitted and scored on the same training rows. They describe representation fit, not held-out predictive performance; shuffled stage F1 is a chance-control score, not necessarily zero.
+* The physics baseline uses the 514 nm coefficients for every wavelength and chooses the inverse-size branch. It is the declared simple comparator, not a wavelength-aware two-branch fit.
 * The stage labels for task T1 are assigned from L_a at 43 Å and 6 Å; the forward model switches branch at 20 Å.
-* `verify.py` compares the corpus digest before and after regeneration on the same machine. Across NumPy builds the digest differs while the metrics do not (see Independent re-derivations); a digest mismatch against the published value on a different build is expected and is not a failed gate.
+* `verify.py` compares two temporary generations on the same machine. Across NumPy builds the digest differs while the metrics do not (see Independent re-derivations); a digest mismatch against the published value on a different build is expected and is not a failed gate.
 * The seven release gates of the paper's Table 3 include two gates on the acquisition journal (journal validity, hypothesis determinism). Those are exercised on a simulated acquisition campaign that belongs to a separate programme on the same platform and is not part of this repository or the deposit; `verify.py` here runs the five gates that apply to the deposited artifacts.
+
+See [verification and submission scope](VERIFICATION.md) for the final repository checks and limitations.
 
 ## Cite
 
@@ -78,7 +93,7 @@ The corpus file digest is build-specific: on the pinned macOS environment `mac_s
 
 > R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark*, preprint v2.0, 2026-09-05. Code: github.com/SSX360/raman-turnover-benchmark, release v2.0, doi:10.5281/zenodo.22729662. Data record: https://ryanjamesyork.com/raman-turnover, doi:10.5281/zenodo.22729728
 
-The code DOI identifies release v2.0; the concept DOI 10.5281/zenodo.22729661 resolves to the latest release. The data-record DOI identifies the v2.0 deposit; its concept DOI is 10.5281/zenodo.22729727. Both records were published on Zenodo on 2026-09-12. Later releases of this repository are archived on Zenodo automatically.
+The code DOI identifies release v2.0; the concept DOI 10.5281/zenodo.22729661 resolves to the latest release. The data-record DOI identifies the v2.0 deposit; its concept DOI is 10.5281/zenodo.22729727. Both records were published on Zenodo on 2026-09-12. The submission-maintenance changes on `main` are newer than the archived v2.0 code. Cite the exact Git commit alongside the v2.0 code/data DOIs when referring to those changes; a Git push alone does not update the versioned DOI archive.
 
 ## Licence
 

@@ -1,5 +1,5 @@
 """v3: robust preprocessing + tuned GBT + CNN (mixup + SWA) + val-fit ensemble.
-Writes eval_results_v3.json.
+Writes outputs/eval_results_v3.json by default, preserving the release record.
 """
 
 import argparse
@@ -17,7 +17,7 @@ from mac.preprocess import preprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "mac"
-OUT = ROOT / "eval_results_v3.json"
+OUT = ROOT / "outputs" / "eval_results_v3.json"
 
 PARAM_GRID = {
     "max_iter": [400, 600, 800],
@@ -93,6 +93,7 @@ def main():
     ap.add_argument("--out", default=str(OUT))
     ap.add_argument("--trials", type=int, default=20)
     ap.add_argument("--no-cnn", action="store_true")
+    ap.add_argument("--device", default="auto", choices=["auto", "cpu", "cuda"])
     args = ap.parse_args()
 
     z, meta = load_v2()
@@ -133,7 +134,9 @@ def main():
     if not args.no_cnn and importlib.util.find_spec("torch"):
         from mac import nn
 
-        device = "cuda"
+        device = args.device
+        if device == "auto":
+            device = "cuda" if nn.torch.cuda.is_available() else "cpu"
         net, val_loss = nn.train_net(
             grid, Xp, wl, la, sp3, stage, tr, va, meta, device=device, epochs=160
         )
@@ -181,6 +184,7 @@ def main():
         "results": results,
         "t1_macro_f1_gbt": results["gbt_v3"]["T1_stage_macro_f1"],
     }
+    pathlib.Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     pathlib.Path(args.out).write_text(json.dumps(payload, indent=2))
     print("wrote", args.out)
 

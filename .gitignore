@@ -7,3 +7,9 @@ data/mac/manifest.json
 ledger/operator.key
 __pycache__/
 *.pyc
+.venv/
+.pytest_cache/
+outputs/
+eval_results_baseline_v2.json
+test-results.xml
+verification.log
