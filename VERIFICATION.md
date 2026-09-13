@@ -13,6 +13,7 @@ Windows x86-64, Python 3.11, NumPy 1.26.4, SciPy 1.13.1 and scikit-learn 1.5.1, 
 | Physics baseline, 600 test rows | T1 0.2106; T2 9.0076; degenerate T2 2.378; corrupted-row MAE 89.393 |
 | Default tree model | T1 0.9918; T2 0.0327; T3 0.0147; exact match to reported reference precision |
 | Determinism | Two local generations have identical corpus, metadata and manifest bytes |
+| Fresh probe run | Coverage error 0.0969 OOD / 0.0299 in-distribution; no clean rows flagged; attribution shift 0.014 angstrom |
 | Reference records | Fresh training and probe outputs use `outputs/`; committed evidence is preserved |
 
 The [verify workflow](https://github.com/SSX360/raman-turnover-benchmark/actions/workflows/verify.yml) reruns the tests and release checks on Linux. The pinned job is required for reproducibility; the latest-library job is informational because the learned model changes across library versions. CI stores the test report and verifier log as artifacts, including when a check fails.

@@ -32,8 +32,8 @@ jobs:
             python: "3.12"
             requirements: requirements.in
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.0.0
         with:
           python-version: ${{ matrix.python }}
       - name: Install
@@ -61,7 +61,7 @@ jobs:
         run: |
           sha256sum data/mac/mac_synthetic_v2.npz data/mac/metadata_v2.json eval_results_baseline_v2.json > rederivation-${{ matrix.env }}.sha256
           cat rederivation-${{ matrix.env }}.sha256
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7.0.1
         if: always()
         with:
           name: rederivation-${{ matrix.env }}-py${{ matrix.python }}
