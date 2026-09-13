@@ -31,7 +31,7 @@ data/mac/mac_synthetic_v2.npz.dvc   DVC pointer (md5, size) for the corpus file
 eval_results_v2.json, eval_results_v21.json, eval_results_v3.json, probe_readings.json   the records behind Tables 2 and 3
 ```
 
-The corpus itself (`data/mac/mac_synthetic_v2.npz`, `metadata_v2.json`), the per-row predictions of the release run, the deposited ledger and the pinned environment file are in the Zenodo data record cited in the paper's Data availability statement (`10.5281/zenodo.22729728`, CC BY 4.0; [download the data record and files](https://ryanjamesyork.com/raman-turnover)). The corpus can also be regenerated here in a few seconds.
+The corpus itself (`data/mac/mac_synthetic_v2.npz`, `metadata_v2.json`), the per-row predictions of the release run, the deposited ledger and the pinned environment file are in the Zenodo data record cited in the paper's Data availability statement (`10.5281/zenodo.22734180`, CC BY 4.0; [download the data record and files](https://ryanjamesyork.com/raman-turnover)). The corpus can also be regenerated here in a few seconds.
 
 ## Reproduce
 
@@ -91,11 +91,11 @@ See [verification and submission scope](VERIFICATION.md) for the final repositor
 
 `CITATION.cff` carries the machine-readable form. In text:
 
-> R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark*, preprint v2.0, 2026-09-05. Code: github.com/SSX360/raman-turnover-benchmark, release v2.0, doi:10.5281/zenodo.22729662. Data record: https://ryanjamesyork.com/raman-turnover, doi:10.5281/zenodo.22729728
+> R. J. York, *Resolving the Raman crystallite size turnover in nanocrystalline graphite with a synthetic benchmark*, preprint v2.1, 2026-09-13. Code: github.com/SSX360/raman-turnover-benchmark, release v2.0, doi:10.5281/zenodo.22729662. Data record: https://ryanjamesyork.com/raman-turnover, doi:10.5281/zenodo.22734180 (v2.1; prior v2.0 doi:10.5281/zenodo.22729728 remains reachable). Independent re-derivation covers the baseline and untuned-tree rows of Table 2.
 
-Both DOIs are registered and publicly findable in DataCite ([code registration](https://api.datacite.org/dois/10.5281/zenodo.22729662), [data registration](https://api.datacite.org/dois/10.5281/zenodo.22729728); checked September 13, 2026). If the [code DOI](https://doi.org/10.5281/zenodo.22729662) or [data DOI](https://doi.org/10.5281/zenodo.22729728) times out, use the [GitHub code release and manuscript](https://github.com/SSX360/raman-turnover-benchmark/releases/tag/v2.0) and [data download page](https://ryanjamesyork.com/raman-turnover). The DOI numbers are unchanged.
+Both DOIs are registered and publicly findable in DataCite ([code registration](https://api.datacite.org/dois/10.5281/zenodo.22729662), [data registration](https://api.datacite.org/dois/10.5281/zenodo.22734180); checked September 14, 2026). If the [code DOI](https://doi.org/10.5281/zenodo.22729662) or [data DOI](https://doi.org/10.5281/zenodo.22734180) times out, use the [GitHub code release and manuscript](https://github.com/SSX360/raman-turnover-benchmark/releases/tag/v2.0) and [data download page](https://ryanjamesyork.com/raman-turnover). The DOI numbers are unchanged.
 
-The code DOI identifies release v2.0; the concept DOI 10.5281/zenodo.22729661 resolves to the latest release. The data-record DOI identifies the v2.0 deposit; its concept DOI is 10.5281/zenodo.22729727. Both records were published on Zenodo on 2026-09-12. The submission-maintenance changes on `main` are newer than the archived v2.0 code. Cite the exact Git commit alongside the v2.0 code/data DOIs when referring to those changes; a Git push alone does not update the versioned DOI archive.
+The code DOI identifies release v2.0; the concept DOI 10.5281/zenodo.22729661 resolves to the latest release. The current data-record DOI identifies the v2.1 deposit; its concept DOI is 10.5281/zenodo.22729727. Prior v2.0 data deposit doi:10.5281/zenodo.22729728 remains reachable. Both records were published on Zenodo on 2026-09-12. The submission-maintenance changes on `main` are newer than the archived v2.0 code. Cite the exact Git commit alongside the v2.0 code/data DOIs when referring to those changes; a Git push alone does not update the versioned DOI archive.
 
 ## Licence
 
